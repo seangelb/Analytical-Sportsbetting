@@ -6,7 +6,7 @@ def implied_probability(ml):  # get implied probability for moneyline
     if ml == 100:
         return .5
     elif ml > 0:
-        return round(((100) / (ml + 100)), 6)  # if positive ML
+        return round((100 / (ml + 100)), 6)  # if positive ML
     else:
         return round((abs(ml) / (abs(ml) + 100)), 6)  # if negative ML
 
@@ -46,23 +46,45 @@ def win_percent(df): #thinking maybe do bayesian stats over time... time series 
     return dict_win
 
 
-#need to still incorporate epsilon rate -> will need to run montecarlo to determine
-def plus_ev_games(win_dict, df, min_ev, largest_spread_fav=100): #defeault largest spread fav and unlimited
+# need to still incorporate epsilon rate -> will need to run montecarlo to determine
+def plus_ev_games(win_dict, df, min_ev, largest_spread_fav=-100):  # spread is always in negative
+    # defeault largest spread fav and unlimited
     plus_ev = pd.DataFrame()
-    for i, row in df.iterrows():
+    for i, row in df.iterrows():  # iterate through each row in the dataframe
         spread = row.spread_favorite
         implied_ml = 0.01
         if row.team_favorite_id == row.home:
-            implied_ml = row.implied_win_home
+            fav_implied_ml = row.implied_win_home
+            favorite = row.home
+            underdog_implied_ml = row.implied_win_away
+            underdog = row.away
         elif row.team_favorite_id == row.away:
-            implied_ml = row.implied_win_away
+            fav_implied_ml = row.implied_win_away
+            favorite = row.away
+            underdog_implied_ml = row.implied_win_home
+            underdog = row.home
+
         # to prevent %/0 error
-        if (spread == 0):
+        if spread == 0:
             spread = -1
 
-        ev = round((win_dict[spread] * implied_ml) - (1 - win_dict[spread]), 6)
+        fav_ev = round((win_dict[spread] * fav_implied_ml) - (1 - win_dict[spread]), 6)
+        underdog_ev = round((1 - win_dict[spread] * underdog_implied_ml) - (win_dict[spread]), 6)
+
+        # determine which has a create EV
+        ev = 0
+        if fav_ev >= underdog_ev:
+            ev = fav_ev
+            row['EV'] = ev
+            row['Bet Type'] = favorite
+
+        else:
+            ev = underdog_ev
+            row['EV'] = ev
+            row['Bet Type'] = underdog
         # print(ev)
-        if ev > min_ev and spread > largest_spread_fav:
+        if (ev >= min_ev) & (spread > largest_spread_fav):
             # print(ev)
+
             plus_ev = plus_ev.append(row)
     return plus_ev

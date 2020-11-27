@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 
 
-def clean_data(scores, teams):
+def clean_data(scores, teams, date):
     df_spread = pd.read_csv(scores)
     df_spread['schedule_date'] = pd.to_datetime(df_spread['schedule_date'])  # date
-    df = df_spread[df_spread['schedule_date'] > "2009-9-10"]  # games starting in week 1 of 2009
+    df = df_spread[df_spread['schedule_date'] > date] #"2009-9-10" # games starting in week 1 of 2009
 
     df_teams = pd.read_csv(teams)
     df_name_id = df.merge(df_teams, left_on="team_home", right_on="team_name")
@@ -110,7 +110,7 @@ def merge(df, df_ml):
 
 
 def do(self):
-    df = self.clean_data("spreadspoke_scores.csv", "nfl_teams.csv")
+    df = self.clean_data("spreadspoke_scores.csv", "nfl_teams.csv", "2009-9-10")
     df = self.make_simple(df)
 
     df_teams = pd.read_csv("nfl_teams.csv")
