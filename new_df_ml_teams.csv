@@ -1,0 +1,48 @@
+,team_name,team_name_short,team_id,team_id_pfr,team_conference,team_division,team_conference_pre2002,team_division_pre2002
+0,Arizona Cardinals,Cardinals,ARI,CRD,NFC,NFC West,NFC,NFC West
+1,Phoenix Cardinals,Cardinals,ARI,CRD,NFC,,NFC,NFC East
+2,St. Louis Cardinals,Cardinals,ARI,ARI,NFC,,NFC,NFC East
+3,Atlanta Falcons,Falcons,ATL,ATL,NFC,NFC South,NFC,NFC West
+4,Baltimore Ravens,Ravens,BAL,RAV,AFC,AFC North,AFC,AFC Central
+5,Buffalo Bills,Bills,BUF,BUF,AFC,AFC East,AFC,AFC East
+6,Carolina Panthers,Panthers,CAR,CAR,NFC,NFC South,NFC,NFC West
+7,Chicago Bears,Bears,CHI,CHI,NFC,NFC North,NFC,NFC Central
+8,Cincinnati Bengals,Bengals,CIN,CIN,AFC,AFC North,AFC,AFC Central
+9,Cleveland Browns,Browns,CLE,CLE,AFC,AFC North,AFC,AFC Central
+10,Dallas Cowboys,Cowboys,DAL,DAL,NFC,NFC East,NFC,NFC East
+11,Denver Broncos,Broncos,DEN,DEN,AFC,AFC West,AFC,AFC West
+12,Detroit Lions,Lions,DET,DET,NFC,NFC North,NFC,NFC Central
+13,Green Bay Packers,Packers,GB,GNB,NFC,NFC North,NFC,NFC Central
+14,Houston Texans,Texans,HOU,HTX,AFC,AFC South,AFC,
+15,Baltimore Colts,Colts,IND,CLT,AFC,,AFC,AFC East
+16,Indianapolis Colts,Colts,IND,CLT,AFC,AFC South,AFC,AFC East
+17,Jacksonville Jaguars,Jaguars,JAX,JAX,AFC,AFC South,AFC,AFC Central
+18,Kansas City Chiefs,Chiefs,KC,KAN,AFC,AFC West,AFC,AFC West
+19,Los Angeles Chargers,Chargers,LAC,SDG,AFC,AFC West,AFC,AFC West
+20,San Diego Chargers,Chargers,LAC,SDG,AFC,AFC West,AFC,AFC West
+21,Los Angeles Rams,Rams,LAR,RAM,NFC,NFC West,NFC,NFC West
+22,St. Louis Rams,Rams,LAR,RAM,NFC,,NFC,NFC West
+23,Miami Dolphins,Dolphins,MIA,MIA,AFC,AFC East,AFC,AFC East
+24,Minnesota Vikings,Vikings,MIN,MIN,NFC,NFC North,NFC,NFC Central
+25,New England Patriots,Patriots,NE,NWE,AFC,AFC East,AFC,AFC East
+26,Boston Patriots,Patriots,NE,NWE,AFC,,AFC,
+27,New Orleans Saints,Saints,NO,NOR,NFC,NFC South,NFC,NFC West
+28,New York Giants,Giants,NYG,NYG,NFC,NFC East,NFC,NFC East
+29,New York Jets,Jets,NYJ,NYJ,NFC,AFC East,NFC,AFC East
+30,Los Angeles Raiders,Raiders,LVR,RAI,AFC,,AFC,AFC West
+31,Las Vegas Raiders,Raiders,LVR,RAI,AFC,,AFC,AFC West
+32,Oakland Raiders,Raiders,LVR,RAI,AFC,AFC West,AFC,AFC West
+33,Philadelphia Eagles,Eagles,PHI,PHI,NFC,NFC East,NFC,NFC East
+34,Pittsburgh Steelers,Steelers,PIT,PIT,AFC,AFC North,AFC,AFC Central
+35,Seattle Seahawks,Seahawks,SEA,SEA,NFC,NFC West,AFC,AFC West
+36,San Francisco 49ers,49ers,SF,SFO,NFC,NFC West,NFC,NFC West
+37,Tampa Bay Buccaneers,Buccaneers,TB,TAM,NFC,NFC South,NFC,NFC Central
+38,Houston Oilers,Oilers,TEN,OTI,AFC,,AFC,AFC Central
+39,Tennessee Oilers,Oilers,TEN,OTI,AFC,,AFC,AFC Central
+40,Tennessee Titans,Titans,TEN,OTI,AFC,AFC South,AFC,AFC Central
+41,Washington Redskins,Washington,WAS,WAS,NFC,NFC East,NFC,NFC East
+42,Washington Football Team,Washington,WAS,WAS,NFC,NFC East,NFC,NFC East
+43,L.A. Rams,Rams,LAR,RAM,NFC,NFC West,NFC,NFC West
+44,L.A. Chargers,Chargers,LAC,SDG,AFC,AFC West,AFC,AFC West
+45,N.Y. Jets,Jets,NYJ,NYJ,NFC,AFC East,NFC,AFC East
+46,N.Y. Giants,Giants,NYG,NYG,NFC,NFC East,NFC,NFC East
