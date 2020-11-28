@@ -5,7 +5,7 @@ import numpy as np
 def clean_data(scores, teams, date):
     df_spread = pd.read_csv(scores)
     df_spread['schedule_date'] = pd.to_datetime(df_spread['schedule_date'])  # date
-    df = df_spread[df_spread['schedule_date'] > date] #"2009-9-10" # games starting in week 1 of 2009
+    df = df_spread[df_spread['schedule_date'] > date]  # "2009-9-10" # games starting in week 1 of 2009
 
     df_teams = pd.read_csv(teams)
     df_name_id = df.merge(df_teams, left_on="team_home", right_on="team_name")
@@ -80,23 +80,26 @@ def add_ml_team_id(self, df_ml, df_teams,
     df_ml['moneyline'] = df_ml['moneyline'].apply(lambda x: [i for i in x if i == i])
     df_ml['moneyline'] = df_ml['moneyline'].apply(lambda x: self.median_split_special_case(x))
     # use median of the lines for the moneyline (will try out other methods in future). This is mostly for backtesting.
-    df_ml_home = df_ml[df_ml['H/A'] == 'home'] # I would do if postive, highest ML, if negative, then number closest to 0.
+    df_ml_home = df_ml[
+        df_ml['H/A'] == 'home']  # I would do if postive, highest ML, if negative, then number closest to 0.
     df_ml_away = df_ml[df_ml['H/A'] == 'away']
     df_ml = df_ml_home.merge(df_ml_away[['key', 'moneyline']], on="key")
     df_ml = df_ml.rename(columns={"moneyline_x": "home_ML", "moneyline_y": "away_ML"})
     df_ml['date'] = pd.to_datetime(df_ml['date'], format='%Y%m%d')  # date
     return df_ml
 
-def median_split_special_case(ml_list): #rare case so I won't worry too much abt theory. If even and +/- equal then median breaks
-    if(len(ml_list) % 2 == 0): #very inefficient
+
+def median_split_special_case(
+        ml_list):  # rare case so I won't worry too much abt theory. If even and +/- equal then median breaks
+    if (len(ml_list) % 2 == 0):  # very inefficient
         count_postive = 0
         count_negative = 0
         for num in ml_list:
             if (num > 0):
-                count_postive +=1
+                count_postive += 1
             else:
-                count_negative +=1
-        if(count_negative == count_postive):
+                count_negative += 1
+        if (count_negative == count_postive):
             return np.median(np.abs(ml_list))
         return np.median(ml_list)
 
@@ -121,6 +124,5 @@ def do(self):
     df_ml = self.remove_misc_teams(bad_data, df_ml)
     df_ml = self.add_ml_team_id(self, df_ml, df_teams)
     df = self.merge(df, df_ml)
-    df = df.dropna() #drops around 300 games with NA values (SBR did not record them for some reason)
+    df = df.dropna()  # drops around 300 games with NA values (SBR did not record them for some reason)
     return df
-

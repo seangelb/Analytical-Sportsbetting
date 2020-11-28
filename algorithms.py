@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import datetime
 
 
 def implied_probability(ml):  # get implied probability for moneyline
@@ -11,16 +12,17 @@ def implied_probability(ml):  # get implied probability for moneyline
         return round((abs(ml) / (abs(ml) + 100)), 6)  # if negative ML
 
 
-def ml_probabilities(self, df):
-    df['implied_win_home'] = df['home_ML'].apply(lambda x: self.implied_probability(x))
-    df['implied_win_away'] = df['away_ML'].apply(lambda x: self.implied_probability(x))
+def ml_probabilities(df):
+    df['implied_win_home'] = df['home_ML'].apply(lambda x: implied_probability(x))
+    df['implied_win_away'] = df['away_ML'].apply(lambda x: implied_probability(x))
     df['total_implied_prob'] = df['implied_win_away'] + df['implied_win_home']
     return df
 
 
 # P(WIN|PS) = Historical Win % of Teams with Point Spread
 # We theorize that a team at point spread PS will win at the same rate at which historical teams at spread PS have won.
-def win_percent(df): #thinking maybe do bayesian stats over time... time series for backtesting.
+# need to still incorporate epsilon rate -> will need to run montecarlo to determine
+def win_percent(df):  # thinking maybe do bayesian stats over time... time series for backtesting.
     dict_win = {}
     for num in [x * 0.5 for x in range(1, 60)]:
         win_count = 0
@@ -46,13 +48,12 @@ def win_percent(df): #thinking maybe do bayesian stats over time... time series 
     return dict_win
 
 
-# need to still incorporate epsilon rate -> will need to run montecarlo to determine
 def plus_ev_games(win_dict, df, min_ev, largest_spread_fav=-100):  # spread is always in negative
     # defeault largest spread fav and unlimited
     plus_ev = pd.DataFrame()
+    favorite = underdog = fav_implied_ml = underdog_implied_ml = None
     for i, row in df.iterrows():  # iterate through each row in the dataframe
         spread = row.spread_favorite
-        implied_ml = 0.01
         if row.team_favorite_id == row.home:
             fav_implied_ml = row.implied_win_home
             favorite = row.home
@@ -65,26 +66,33 @@ def plus_ev_games(win_dict, df, min_ev, largest_spread_fav=-100):  # spread is a
             underdog = row.home
 
         # to prevent %/0 error
-        if spread == 0:
-            spread = -1
+        if (spread == 0) or (spread < largest_spread_fav):  # if spread is 0 or largest spread > current
+            continue
 
-        fav_ev = round((win_dict[spread] * fav_implied_ml) - (1 - win_dict[spread]), 6)
-        underdog_ev = round((1 - win_dict[spread] * underdog_implied_ml) - (win_dict[spread]), 6)
+        try:
+            fav_ev = round((win_dict[spread] * fav_implied_ml) - (1 - win_dict[spread]), 6)
+        except KeyError:
+            continue
+
+        try:
+            underdog_ev = round((1 - win_dict[spread] * underdog_implied_ml) - (win_dict[spread]), 6)
+        except KeyError:
+            continue
 
         # determine which has a create EV
         ev = 0
         if fav_ev >= underdog_ev:
             ev = fav_ev
             row['EV'] = ev
-            row['Bet Type'] = favorite
-
+            row['Bet_Type'] = favorite
         else:
             ev = underdog_ev
             row['EV'] = ev
-            row['Bet Type'] = underdog
+            row['Bet_Type'] = underdog
         # print(ev)
-        if (ev >= min_ev) & (spread > largest_spread_fav):
-            # print(ev)
-
+        if (ev >= min_ev):
             plus_ev = plus_ev.append(row)
+
     return plus_ev
+
+#
