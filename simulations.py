@@ -53,11 +53,10 @@ class Simulations:
             # print(kelly_percent)
             if (kelly_percent < 0) | (self.max_spread >= row.spread_favorite):
                 continue  # go to next game
-
             bet_amount = amount_to_bet(self.current_amount, kelly_percent)
             # print(bet_amount)
             if row.Bet_Type == row.home:
-                win = (bet_amount * (1 + row.implied_win_home)) - bet_amount
+                win = (bet_amount * (1 - row.implied_win_home)) + bet_amount #you win difference in implied rate + initial bet
                 lose = bet_amount
                 if row.score_home > row.score_away:
                     self.win_loss.append(1)
@@ -69,7 +68,7 @@ class Simulations:
                     self.win_loss.pop(0)  # increase w/l ratio
 
             elif row.Bet_Type == row.away:
-                win = (bet_amount * (1 + row.implied_win_away)) - bet_amount
+                win = (bet_amount * (1 - row.implied_win_away)) + bet_amount
                 lose = bet_amount
                 if row.score_away > row.score_home:
                     self.current_amount = self.current_amount + win

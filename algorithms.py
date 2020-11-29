@@ -90,8 +90,8 @@ def plus_ev_games(win_dict, df, min_ev, largest_spread_fav=-100):  # spread is a
             row['EV'] = ev
             row['Bet_Type'] = underdog
         # print(ev)
-        if (ev >= min_ev):
-            plus_ev = plus_ev.append(row)
+        if ev >= min_ev:
+            plus_ev = plus_ev.append(row) #if meets critera, add to +EV dataset
 
     return plus_ev
 
