@@ -13,11 +13,11 @@ def soup_url(type_of_line, tdate=str(date.today()).replace('-', '')):
 
     web_url = dict()
     web_url['ML'] = 'money-line/'
-    web_url['RL'] = 'pointspread/'
+    web_url['Spread'] = ''
     web_url['total'] = 'totals/'
     url_addon = web_url[type_of_line]
 
-    url = 'https://classic.sportsbookreview.com/betting-odds/nfl-football/' + url_addon + '?date=' + tdate
+    url = 'https://classic.sportsbookreview.com/betting-odds/nfl-football/?date=' + tdate
     now = datetime.datetime.now()
     raw_data = requests.get(url)
     soup_big = BeautifulSoup(raw_data.text, 'html.parser')
@@ -79,6 +79,7 @@ def parse_and_write_data(soup, date, not_ML=True):
         number_of_games = len(soup.find_all('div', attrs={'class': 'el-div eventLine-rotation'}))
     except:
         number_of_games = 0
+    #print(number_of_games)
     if number_of_games != 0:
         team_counter = 0
         for i in range(0, number_of_games):
@@ -90,14 +91,22 @@ def parse_and_write_data(soup, date, not_ML=True):
 
             ## Gather all useful data from unique books
             # consensus_data =  soup.find_all('div', 'el-div eventLine-consensus')[i].get_text()
-            team_A = soup.find_all('span', attrs={'class': 'team-name'})[team_counter].text
+            try:
+                team_A = soup.find_all('span', attrs={'class': 'team-name'})[team_counter].text
+            except IndexError:
+                continue
             team_counter = team_counter + 1
-            team_H = soup.find_all('span', attrs={'class': 'team-name'})[team_counter].text
+            try:
+                team_H = soup.find_all('span', attrs={'class': 'team-name'})[team_counter].text
+            except IndexError:
+                continue
+            #print(team_H)
             team_counter = team_counter + 1
 
-            # print(info_A)
-            # print("space-------------------------------")
-            # print(team_A)
+        for i in range(0, len(A)): #fix error with random blanks
+            team_A = A[i]
+            team_H = H[i]
+
             ## get line/odds info for unique book. Need error handling to account for blank data
             def try_except_book_line(id, i, x):
                 try:
@@ -226,6 +235,7 @@ def parse_and_write_data(soup, date, not_ML=True):
             df.loc[counter] = ([A[j] for j in range(len(A))])
             df.loc[counter + 1] = ([H[j] for j in range(len(H))])
             counter += 2
+
     return df
 
 
@@ -283,24 +293,33 @@ def blank_out_df(df, text):
                  '5dimes_line', '5dimes_odds',
                  'heritage_line', 'heritage_odds',
                  'bovada_line', 'bovada_odds',
-                 'betonline_line', 'betonline_odds']]
+                 'betonline_line', 'betonline_odds',
+                 'bet365_line', 'bet365_odds',
+                 'bodog_line', 'bodog_odds'
+                 ]]
         df.columns = ['key', text + '_time', 'team', 'opp_team',
                       text + '_PIN_line', text + '_PIN_odds',
                       text + '_FD_line', text + '_FD_odds',
                       text + '_HER_line', text + '_HER_odds',
                       text + '_BVD_line', text + '_BVD_odds',
-                      text + '_BOL_line', text + '_BOL_odds']
+                      text + '_BOL_line', text + '_BOL_odds',
+                      text + '_BET_line', text + '_BET_odds',
+                      text + '_BOD_line', text + '_BOD_odds']
 
         df[text + '_PIN_line'] = ""
         df[text + '_FD_line'] = ""
         df[text + '_HER_line'] = ""
         df[text + '_BVD_line'] = ""
         df[text + '_BOL_line'] = ""
+        df[text + '_BET_line'] = ""
+        df[text + '_BOD_line'] = ""
         df[text + '_PIN_odds'] = ""
         df[text + '_FD_odds'] = ""
         df[text + '_HER_odds'] = ""
         df[text + '_BVD_odds'] = ""
         df[text + '_BOL_odds'] = ""
+        df[text + '_BET_odds'] = ""
+        df[text + '_BOD_odds'] = ""
 
     return df
 
@@ -308,8 +327,8 @@ def blank_out_df(df, text):
 def main():
     ## Get today's lines
 
-    startDate = date(2020,11,26)
-    closeDate = date(2020,12,2)
+    startDate = date(2009,9,10)
+    closeDate = date(2020,12,1)
     difference = closeDate - startDate
     difference = int(difference.days) + 1
 
@@ -322,7 +341,7 @@ def main():
 
         ## store BeautifulSoup info for parsing
         try:
-            soup_ml, time_ml = soup_url('ML', todays_date)
+            soup_ml, time_ml = soup_url('Spread', todays_date)
             #print("getting today's MoneyLine " + todays_date)
 
         except:
@@ -336,18 +355,18 @@ def main():
 
         #### Each df_xx creates a data frame for a bet type
         #print("writing today's MoneyLine " + todays_date)
-        df_ml = parse_and_write_data(soup_ml, todays_date, not_ML=False)
+        df_spread = parse_and_write_data(soup_ml, todays_date, not_ML=True)
 
     ## Change column names to make them unique
-        df_ml.columns = ['key', 'date', 'ml_time', 'H/A', 'team', 'opp_team',
-                         'ml_PIN', 'ml_FD', 'ml_HER', 'ml_BVD', 'ml_BOL', 'ml_BET', 'ml_BOD']
-        df_ml = df_ml.drop(['ml_time'], axis=1)
+        # df_ml.columns = ['key', 'date', 'ml_time', 'H/A', 'team', 'opp_team',
+        #                  'ml_PIN', 'ml_FD', 'ml_HER', 'ml_BVD', 'ml_BOL', 'ml_BET', 'ml_BOD']
+        # df_ml = df_ml.drop(['ml_time'], axis=1)
 
-
+        df_spread = df_spread.drop('time', axis=1)
         ## Merge all DataFrames together to allow for simple printout
-        write_df = df_ml
+        write_df = df_spread
 
-        my_file = Path("NFL_moneylines.csv") #file name
+        my_file = Path("NFL_spread_since2009.csv") #file name
         if my_file.is_file():
             with open(my_file, 'a') as f:
                 write_df.to_csv(f, header=False, index=False)
