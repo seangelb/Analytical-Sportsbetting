@@ -343,7 +343,7 @@ def blank_out_df(df, text):
 def main():
     ## Get today's lines
 
-    startDate = date(2009, 9, 10)
+    startDate = date(2013,12,3)
     #closeDate = date(2009, 9, 15)
     closeDate = date(2020, 12, 1)
     difference = closeDate - startDate
