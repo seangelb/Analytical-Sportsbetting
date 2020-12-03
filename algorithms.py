@@ -53,7 +53,7 @@ def win_percent(df):  # thinking maybe do bayesian stats over time... time serie
 
 def plus_ev_games(win_dict, df, min_ev, largest_spread_fav=-100):  # spread is always in negative
     # defeault largest spread fav and unlimited
-    epsilon = 0.34
+    epsilon = 0.0
     plus_ev = pd.DataFrame()
     favorite = underdog = fav_implied_ml = underdog_implied_ml = None
     for i, row in df.iterrows():  # iterate through each row in the dataframe
@@ -70,22 +70,21 @@ def plus_ev_games(win_dict, df, min_ev, largest_spread_fav=-100):  # spread is a
             underdog = row.home
 
         # to prevent %/0 error
-        if (spread == 0) or (spread >= -3) or (spread < largest_spread_fav):  # if spread is 0 or largest spread > current
+        if (spread == 0) or (spread < largest_spread_fav):  # if spread is 0 or largest spread > current
             continue #do spread <= -2 bc some spreads are not right
 
         try:
-            fav_ev = round(((win_dict[spread] * (1 / fav_implied_ml)) - (1 - win_dict[spread])) - 1, 6)
+            fav_ev = round(((((1 / fav_implied_ml) - 1) * win_dict[spread]) - (1 - win_dict[spread])), 6)
         except KeyError:
             continue
         try:
-            underdog_ev = round((((1 - win_dict[spread]) * (1 / underdog_implied_ml)) - (win_dict[spread])), 6)
+            underdog_ev = round(((((1 / underdog_implied_ml) - 1) * (1 - win_dict[spread])) - (win_dict[spread])), 6)
         except KeyError:
             continue
 
         # determine which has a create EV
         ev = 0
-        if (fav_ev <= underdog_ev) & (((1 - win_dict[spread]) >= (.5 - epsilon)) & (
-                (1 - win_dict[spread]) <= (.5 + epsilon))):  # determine epsilon
+        if (fav_ev <= underdog_ev): #& (((1 - win_dict[spread]) >= (.5 - epsilon)) & ((1 - win_dict[spread]) <= (.5 + epsilon))):  # determine epsilon
             ev = underdog_ev
             row['EV'] = ev
             row['Bet_Type'] = underdog

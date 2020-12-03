@@ -6,6 +6,7 @@ def clean_data(scores, teams, date):
     df_spread = pd.read_csv(scores)
     df_spread['schedule_date'] = pd.to_datetime(df_spread['schedule_date'])  # date
     df = df_spread[df_spread['schedule_date'] > date]  # "2009-9-10" # games starting in week 1 of 2009
+    #df = df_spread[df_spread['schedule_date'] < "2009-11-07"]  #test
 
     df_teams = pd.read_csv(teams)
     df_name_id = df.merge(df_teams, left_on="team_home", right_on="team_name")
@@ -89,7 +90,7 @@ def add_ml_team_id(self, df_ml, df_teams,
     return df_ml
 
 
-def add_spread_team_id(self, df_ml, df_teams,
+def add_spread_team_id(df_ml, df_teams,
                        csvfile="team_key_value_pairs.csv"):  # changes team names to team id by merged df_ml, df_team, and a key value pair table
     df_kv = pd.read_csv(csvfile)
     df_ml = df_ml.merge(df_kv, left_on='team', right_on='team', how='left')
@@ -106,7 +107,7 @@ def add_spread_team_id(self, df_ml, df_teams,
                        axis=1)
     df_ml['spread'] = df_ml['spread'].apply(lambda x: [float(i) for i in x if is_float(i)])
     df_ml['spread'] = df_ml['spread'].apply(lambda x: [i for i in x if i == i])
-    df_ml['spread'] = df_ml['spread'].apply(lambda x: np.median(x))
+    df_ml['spread'] = df_ml['spread'].apply(lambda x: np.median(x)) #try min
     df_ml_home = df_ml[
         df_ml['H/A'] == 'home']  # I would do if postive, highest ML, if negative, then number closest to 0.
     df_ml_away = df_ml[df_ml['H/A'] == 'away']
@@ -117,18 +118,17 @@ def add_spread_team_id(self, df_ml, df_teams,
 
     df_ml['spread_favorite'] = np.where(df_ml['home_spread'] >= df_ml['away_spread'], df_ml['away_spread'],
                                         df_ml['home_spread'])
-    df_ml['favorite_team_id'] = np.where(df_ml['home_spread'] >= df_ml['away_spread'], df_ml['away'], df_ml['home'])
+    df_ml['team_favorite_id'] = np.where(df_ml['home_spread'] >= df_ml['away_spread'], df_ml['away'], df_ml['home'])
+    df_ml = df_ml[['date', 'home', 'away', 'team_favorite_id', 'spread_favorite']]
     return df_ml
 
 
-def update_spreads(df, df_spread_update):  #take the df and the output from #add_spread_team_id to generate a new_df w/ the correct spread
-    #this actually has a lot inefficency but for time, I will do it this way. In reality. I need to find a way to scrape scores to update via that than this this old dataset
-
-    df_spread_update = df.merge(df_spread_update, left_on=['schedule_date', 'home', 'away'],
-                                right_on=['date', 'home', 'away'], how='left')
-    df_spread_update = df_spread_update.drop(['spread_favorite_x', 'date'], axis=1)
-    df_spread_update = df_spread_update.rename(columns={"spread_favorite_y": "spread_favorite"})
+def update_spreads(df, df_spread_update): #updated spread since 2009. Still need a way to get score
+    df_spread_update = df.merge(df_spread_update,left_on=['schedule_date', 'home', 'away'], right_on=['date', 'home', 'away'], how='left')
+    df_spread_update = df_spread_update.drop(['spread_favorite_x', 'team_favorite_id_x', 'date'], axis = 1)
+    df_spread_update = df_spread_update.rename(columns={"spread_favorite_y" : "spread_favorite", "team_favorite_id_y" : "team_favorite_id"})
     return df_spread_update
+
 
 
 def merge_spread(df, df_ml):
@@ -180,7 +180,8 @@ def do(self):
     df_ml = pd.read_csv("NFL_moneylines.csv")
     df_spread = pd.read_csv("NFL_spread_since2009.csv")
     df_spread = self.remove_misc_teams(bad_data, df_spread)
-    df_spread = self.add_spread_team_id(self, df_spread, df_teams)
+    df_spread = self.add_spread_team_id(df_spread, df_teams)
+
     df = self.update_spreads(df, df_spread) #update dataframe to most up-to-date spreads since 2009
     df_ml = self.remove_misc_teams(bad_data, df_ml)
     df_ml = self.add_ml_team_id(self, df_ml, df_teams)

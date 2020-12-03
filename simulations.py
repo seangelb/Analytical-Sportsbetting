@@ -51,26 +51,26 @@ class Simulations:
         # bet_amount = 25 #bet amount is from kelley criteria = W - ((1 - W)/R)
         for i, row in plus_ev_df.iterrows():
             # print(row)
-            kelly_percent = kelly_criterion(win_dict, row.spread_favorite, row.Bet_Type, row.team_favorite_id,
-                                            self.win_loss)
+            # kelly_percent = kelly_criterion(win_dict, row.spread_favorite, row.Bet_Type, row.team_favorite_id,self.win_loss)
             # # print(kelly_percent)
             # if (kelly_percent < 0) | (self.max_spread >= row.spread_favorite):
             #     continue  # go to next game
             if self.max_spread >= row.spread_favorite:
                 continue
-            # bet_amount = amount_to_bet(self.current_amount, kelly_percent)
-            bet_amount = 25
+            # bet_amount = round(amount_to_bet(self.current_amount, kelly_percent), 2)
+            bet_amount = 10
             lose = bet_amount
 
             # bet_amount = 25
             # print(bet_amount)
             if (row.Bet_Type == row.home) | (row.Bet_Type == row.away):
                 self.current_ev += (bet_amount * row.EV)
-                self.bet += 1 #count number of bets made
+                self.bet += 1  # count number of bets made
 
             if row.Bet_Type == row.home:
                 # see how I should be winning vs theoretical EV wise.
-                win = (bet_amount / row.implied_win_home) - bet_amount  # you win difference in implied rate + initial bet
+                win = (
+                                  bet_amount / row.implied_win_home) - bet_amount  # you win difference in implied rate + initial bet
                 if row.score_home > row.score_away:  # if you win you make the implied moneyline
                     self.win_loss.append(1)
                     self.win_loss.pop(0)  # increase w/l ratio
@@ -91,7 +91,7 @@ class Simulations:
                     self.current_amount -= lose
                     self.win_loss.append(0)
                     self.win_loss.pop(0)  # increase w/l ratio
-            print(bet_amount, self.current_amount, (bet_amount * row.EV), self.current_ev)
+            #print(bet_amount, self.current_amount, round((bet_amount * row.EV),2), self.current_ev)
 
     def simulate_v2(self, df_historic_win, df_ml, algorithms):
         # more advanced simulation with win_data updating everyday
@@ -105,7 +105,7 @@ class Simulations:
                 continue
             else:
                 win_data = df_historic_win[
-                    df_historic_win['schedule_date'] > check_date]  # create win_df for days before the event
+                    df_historic_win['schedule_date'] < check_date]  # create win_df for days before the event
                 win_dict = algorithms.win_percent(win_data)  # update win percentage dict based on days before
                 self.start_date += delta  # iterate through date
                 plus_ev_df = algorithms.plus_ev_games(win_dict, games_today, self.ev,
